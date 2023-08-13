@@ -1,36 +1,35 @@
 from django.db import models
-
-class Patient(models.Model):
+from django.contrib.auth.models import AbstractBaseUser 
+class Patient(AbstractBaseUser):
     id_Patient = models.AutoField(primary_key=True)
+    id_admin = models.ForeignKey('Admin', on_delete=models.CASCADE)   
     name = models.CharField(max_length=50)
     prenom = models.CharField(max_length=50)
+    password = models.CharField(max_length=50)
     date_naissance = models.DateField()
 
+    USERNAME_FIELD = 'id_Patient'
+    REQUIRED_FIELDS = []
+
     def __str__(self):
-        return f"{self.name} {self.prenom}"
+        return f"{self.name}"
 
 
-class Admin(models.Model):
+class Admin(AbstractBaseUser):
     id_Admin = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50)
     password = models.CharField(max_length=50)
+
+    USERNAME_FIELD = 'id_Admin'
+    REQUIRED_FIELDS = []
     def __str__(self):
         return f"{self.name} "
     
 
-class Ajouter(models.Model): 
-    id_ajout = models.AutoField(primary_key=True)
-    admin_id = models.ForeignKey(Admin, on_delete=models.CASCADE)
-    patient_id = models.ForeignKey(Patient, on_delete=models.CASCADE)    
-   
-    def __str__(self):
-        return f"Ajout {self.patient_id} by {self.admin_id}"
-
  
-
 class Cliche(models.Model):
     id_Cliche = models.AutoField(primary_key=True)
-    ajouter_id = models.ForeignKey(Ajouter, on_delete=models.CASCADE)
+    patient_id = models.ForeignKey(Patient, on_delete=models.CASCADE)
     cle = models.CharField(max_length=50)
     def __str__(self):
         return f"Cliché {self.id_Cliche} "
