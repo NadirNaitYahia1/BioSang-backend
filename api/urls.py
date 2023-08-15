@@ -7,4 +7,5 @@ urlpatterns = [
   path('registerUser', views.RegisterUser),
   path('login/user', views.loginUser),
   path('logoutUser', views.logoutUser),
+  path('getPatient', views.user),
 ]

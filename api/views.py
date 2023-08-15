@@ -71,20 +71,20 @@ def loginUser(request):
     }
     return response
 
-# @api_view(['GET'])
-# def user(request):
-#     token = request.COOKIES.get('jwt')
-#     if not token:
-#         raise AuthenticationFailed('Unauthenticated!')
+@api_view(['GET'])
+def user(request):
+    token = request.COOKIES.get('jwt')
+    if not token:
+        raise AuthenticationFailed('Unauthenticated!')
     
-#     try:
-#         payload = jwt.decode(token, 'secret', algorithms=['HS256'])
-#     except jwt.ExpiredSignatureError:
-#         raise AuthenticationFailed('Unauthenticated!')
+    try:
+        payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+    except jwt.ExpiredSignatureError:
+        raise AuthenticationFailed('Unauthenticated!')
 
-#     user = Patient.objects.filter(id_Patient=payload['id_Patient']).first()
-#     serializer = PatientSerializer(user)
-#     return Response(serializer.data)
+    user = Patient.objects.filter(id_Patient=payload['id_Patient']).first()
+    serializer = PatientSerializer(user)
+    return Response(serializer.data)
 
 
 @api_view(['POST'])
