@@ -38,11 +38,12 @@ def RegisterUser(request):
 
 @api_view(['POST'])
 def loginUser(request):
+    print('--------------------------------------------RECIVE DATA--------------------------------------------')
     print("request",request.data)
-    print("type", type(request.data))
-    id_Patient = request.data.get('id_patient')
+    id_Patient = request.data.get('id_Patient')
     print("id_Patient",id_Patient)
     password = request.data.get('password')
+    print("password",password)
     
    
     user = Patient.objects.filter(id_Patient=id_Patient).first() 
@@ -55,21 +56,23 @@ def loginUser(request):
         raise AuthenticationFailed('Incorrect password!')
     
 
+
     payload = {
         'id_Patient': user.id_Patient,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
         'iat': datetime.datetime.utcnow()
     }
 
-    token = jwt.encode(payload, 'secret', algorithm='HS256')
+    token = jwt.encode(payload, 'your-secret-key', algorithm='HS256') 
     
     response = Response()
-
     response.set_cookie(key='jwt', value=token, httponly=True)
     response.data = {
+        'message': 'Login successful',
         'jwt': token
     }
     return response
+ 
 
 @api_view(['GET'])
 def user(request):
