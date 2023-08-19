@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Patient
-from .models import Admin  
+from .models import Admin 
+from .models import Analyse 
+ 
 
 class PatientSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,3 +31,14 @@ class AdminSerializer(serializers.ModelSerializer):
             instance.set_password(password)  
         instance.save()
         return instance
+    
+class AnalyseSerializer(serializers.ModelSerializer):
+    patient_id = serializers.PrimaryKeyRelatedField(queryset=Patient.objects.all())
+    admin_id = serializers.PrimaryKeyRelatedField(queryset=Admin.objects.all())
+
+    class Meta:
+        model = Analyse
+        fields = ['id_analyse','patient_id','admin_id' , 'fichier', 'date']
+
+
+ 

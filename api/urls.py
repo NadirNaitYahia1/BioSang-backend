@@ -5,7 +5,8 @@ urlpatterns = [
   # path('login', views.login),
   path('registerAdmin', views.RegisterAdmin),
   path('registerUser', views.RegisterUser),
-  path('login/user', views.loginUser),
+  path('login', views.loginUser),
   path('logoutUser', views.logoutUser),
   path('getPatient', views.user),
+  path('getAnalyses', views.getAnalyses),
 ]
