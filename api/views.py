@@ -55,17 +55,14 @@ def loginUser(request):
     print("password",password)
     
   
+    try:
+        user = Patient.objects.filter(id_Patient=id_Patient).first()
+        if not user.check_password(password):
+            return Response({'error': 'password  is wrong'}, status='400')
 
-    user = Patient.objects.filter(id_Patient=id_Patient).first() 
-    print("user",user)
-    print("user",user.password)
-   
-    if user is None:
-        print("user is None")
-    
-    if not user.check_password(password):
-        print("not user.check_password(password)")
-
+    except:
+        return Response({'error': 'password or id_Patient is wrong!'}, status='400')
+        
 
     payload = {
         'id_Patient': user.id_Patient,
@@ -78,7 +75,7 @@ def loginUser(request):
     token = jwt.encode(payload, 'secret', algorithm='HS256') 
     
     response = Response()
-    response.set_cookie('jwt', token, httponly=True, samesite='Strict')
+    # response.set_cookie('jwt', token, httponly=True, samesite='Strict')
     print('--------------------------------///------------SEND DATA--------------------------------------------')
     response.data = {
         'message': 'Login successful',
@@ -89,21 +86,21 @@ def loginUser(request):
  
  
 
-@api_view(['GET'])
-def user(request):
-    token = request.COOKIES.get('jwt')
-    print("token   get--------------------------",token)
-    if not token:
-        raise AuthenticationFailed('Unauthenticated!')
+# @api_view(['GET'])
+# def user(request):
+#     token = request.COOKIES.get('jwt')
+#     print("token   get--------------------------",token)
+#     if not token:
+#         raise AuthenticationFailed('Unauthenticated!')
     
-    try:
-        payload = jwt.decode(token, 'secret', algorithms=['HS256'])
-    except jwt.ExpiredSignatureError:
-        raise AuthenticationFailed('Unauthenticated!')
+#     try:
+#         payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+#     except jwt.ExpiredSignatureError:
+#         raise AuthenticationFailed('Unauthenticated!')
 
-    user = Patient.objects.filter(id_Patient=payload['id_Patient']).first()
-    serializer = PatientSerializer(user)
-    return Response(serializer.data)
+#     user = Patient.objects.filter(id_Patient=payload['id_Patient']).first()
+#     serializer = PatientSerializer(user)
+#     return Response(serializer.data)
 
 
 @api_view(['POST'])
