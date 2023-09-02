@@ -7,6 +7,6 @@ urlpatterns = [
   # path('registerAdmin', views.RegisterAdmin),
   path('registerUser', views.RegisterUser),
   # path('logoutUser', views.logoutUser),
-  # path('getPatient', views.user),
+  path('getAnalyses', views.getAnalyses),
   # path('getAnalyses', views.getAnalyses),
 ]

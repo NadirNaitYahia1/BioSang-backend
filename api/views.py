@@ -85,22 +85,23 @@ def loginUser(request):
 
  
  
-
-# @api_view(['GET'])
-# def user(request):
-#     token = request.COOKIES.get('jwt')
-#     print("token   get--------------------------",token)
-#     if not token:
-#         raise AuthenticationFailed('Unauthenticated!')
+ 
+@api_view(['GET'])
+def user(request):
+    auth_header = request.headers.get('Authorization')  # Retrieve the 'Authorization' header
+    if not auth_header:
+        raise AuthenticationFailed('Unauthenticated!')
     
-#     try:
-#         payload = jwt.decode(token, 'secret', algorithms=['HS256'])
-#     except jwt.ExpiredSignatureError:
-#         raise AuthenticationFailed('Unauthenticated!')
+    try:
+        token = auth_header.split(' ')[1]  # Extract the token part from the header (Bearer token)
+        payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+    except jwt.ExpiredSignatureError:
+        raise AuthenticationFailed('Unauthenticated!')
 
-#     user = Patient.objects.filter(id_Patient=payload['id_Patient']).first()
-#     serializer = PatientSerializer(user)
-#     return Response(serializer.data)
+    user = Patient.objects.filter(id_Patient=payload['id_Patient']).first()
+    serializer = PatientSerializer(user)
+    return Response(serializer.data)
+
 
 
 @api_view(['POST'])
@@ -117,28 +118,21 @@ def logoutUser(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def getAnalyses(request):
-    token = request.COOKIES.get('jwt')
-
-    print("token   get--------------------------",token)
-    
-    if not token:
+    auth_header = request.headers.get('Authorization')  # Retrieve the 'Authorization' header
+    if not auth_header:
         raise AuthenticationFailed('Unauthenticated!')
     
     try:
+        token = auth_header.split(' ')[1]  # Extract the token part from the header (Bearer token)
         payload = jwt.decode(token, 'secret', algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
         raise AuthenticationFailed('Unauthenticated!')
-    
-    try:
-        user = Patient.objects.get(id_Patient=payload['id_Patient'])
-        print("user--------------------------------->>>>>>>>>>>>>", user)
-    except Patient.DoesNotExist:
-        raise AuthenticationFailed('User not found!')
-    
-    print("user id:", user.id_Patient)
-    analyses = Analyse.objects.filter(patient_id=user.id_Patient)  # Use the correct field name
+
+    user = Patient.objects.filter(id_Patient=payload['id_Patient']).first()
+    serializer = PatientSerializer(user)
+
+    analyses = Analyse.objects.filter(patient_id=user.id_Patient)
     serializerAnalyse = AnalyseSerializer(analyses, many=True)
     print("analyses------------------->>>>>>>>>>>>>", serializerAnalyse.data)
     
