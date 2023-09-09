@@ -10,4 +10,9 @@ urlpatterns = [
   # path('getAnalyses', views.getAnalyses),
   # --------------------------------------------ADMIN--------------------------------------------
   path('admin/login', views.loginAdmin),
+  path('getAdmin', views.getAdmin),
+  path('getAnalysesForAdmin', views.getAnalysesForAdmin),
+  path('getPatients', views.getPatients),
+  path('getAdmins', views.getAdmins),
+
 ]

@@ -168,19 +168,23 @@ def loginAdmin(request):
  
  
 @api_view(['GET'])
-def admin(request):
+def getAdmin(request):
+    print('--------------------------------------------RECIVE DATA--------------------------------------------')
     auth_header = request.headers.get('Authorization')  # Retrieve the 'Authorization' header
+    print("auth_header",auth_header)
     if not auth_header:
         raise AuthenticationFailed('Unauthenticated!')
     
     try:
         token = auth_header.split(' ')[1]  # Extract the token part from the header (Bearer token)
         payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        print("payload",payload)
     except jwt.ExpiredSignatureError:
         raise AuthenticationFailed('Unauthenticated!')
 
     user = Admin.objects.filter(id_Admin=payload['id_Admin']).first()
     serializer = AdminSerializer(user)
+    print('serializer.data',serializer.data)
     return Response(serializer.data)
 
 
@@ -211,3 +215,68 @@ def RegisterUser(request):
     serializer.save()
     
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def getAnalysesForAdmin(request):
+    auth_header = request.headers.get('Authorization')  # Retrieve the 'Authorization' header
+    if not auth_header:
+        raise AuthenticationFailed('Unauthenticated!')
+    
+    try:
+        token = auth_header.split(' ')[1]  # Extract the token part from the header (Bearer token)
+        payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+    except jwt.ExpiredSignatureError:
+        raise AuthenticationFailed('Unauthenticated!')
+
+
+    analyses = Analyse.objects.all()
+    serializerAnalyse = AnalyseSerializer(analyses, many=True)
+    print("analyses------------------->>>>>>>>>>>>>", serializerAnalyse.data)
+    
+    return Response(serializerAnalyse.data)
+
+
+@api_view(['GET'])
+def getPatients(request):
+    print('request', request)
+    auth_header = request.headers.get('Authorization')  # Retrieve the 'Authorization' header
+    print("auth_header", auth_header)
+    if not auth_header:
+        raise AuthenticationFailed('Unauthenticated!')
+
+    try:
+        token = auth_header.split(' ')[1]  # Extract the token part from the header (Bearer token)
+        payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+    except jwt.ExpiredSignatureError:
+        raise AuthenticationFailed('Unauthenticated!')
+
+    patients = Patient.objects.all()
+    print("patients------------------->>>>>>>>>>>>>", patients)
+    patientSerializer = PatientSerializer(patients, many=True)
+    serialized_data = patientSerializer.data  # Get the serialized data
+    print("patients------------------->>>>>>>>>>>>>", serialized_data)
+
+    return Response(serialized_data)  # Return the serialized data as a JSON response
+
+@api_view(['GET'])
+def getAdmins(request):
+    print('request', request)
+    auth_header = request.headers.get('Authorization')  # Retrieve the 'Authorization' header
+    print("auth_header", auth_header)
+    if not auth_header:
+        raise AuthenticationFailed('Unauthenticated!')
+
+    try:
+        token = auth_header.split(' ')[1]  # Extract the token part from the header (Bearer token)
+        payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+    except jwt.ExpiredSignatureError:
+        raise AuthenticationFailed('Unauthenticated!')
+
+    admin = Admin.objects.all()
+    print("patients------------------->>>>>>>>>>>>>", admin)
+    adminSerializer = AdminSerializer(admin, many=True)
+    serialized_data = adminSerializer.data  # Get the serialized data
+    print("patients------------------->>>>>>>>>>>>>", serialized_data)
+
+    return Response(serialized_data)  # Return the serialized data as a JSON response
