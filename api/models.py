@@ -38,7 +38,7 @@ class Analyse(models.Model):
     id_analyse = models.AutoField(primary_key=True)
     admin_id = models.ForeignKey(Admin, on_delete=models.CASCADE)
     patient_id = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    fichier = models.FileField(upload_to='uploads/')
+    fichier = models.FileField(upload_to='uploads/files')
     date = models.DateField()
     def __str__(self):
         return f"Analyse {self.id_analyse} by {self.admin_id} for {self.patient_id}"

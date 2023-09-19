@@ -29,11 +29,8 @@ def gettest(request):
 @api_view(['POST'])
 def loginUser(request):
     print('--------------------------------------------RECIVE DATA--------------------------------------------')
-    print("request",request.data)
     id_Patient = int(request.data.get('id_Patient'))
-    print("id_Patient",id_Patient)
     password = request.data.get('password')
-    print("password",password)
     
   
     try:
@@ -57,7 +54,6 @@ def loginUser(request):
     
     response = Response()
     # response.set_cookie('jwt', token, httponly=True, samesite='Strict')
-    print('--------------------------------///------------SEND DATA--------------------------------------------')
     response.data = {
         'message': 'Login successful',
         'jwt': token
@@ -108,14 +104,16 @@ def getAnalyses(request):
         token = auth_header.split(' ')[1]  # Extract the token part from the header (Bearer token)
         payload = jwt.decode(token, 'secret', algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
-        raise AuthenticationFailed('Unauthenticated!')
+            raise AuthenticationFailed('Unauthenticated!')
 
-    user = Patient.objects.filter(id_Patient=payload['id_Patient']).first()
+    try :
+        user = Patient.objects.filter(id_Patient=payload['id_Patient']).first()
+    except :
+        return Response({'error': 'id_Patient is wrong!'}, status='400')
     serializer = PatientSerializer(user)
 
     analyses = Analyse.objects.filter(patient_id=user.id_Patient)
     serializerAnalyse = AnalyseSerializer(analyses, many=True)
-    print("analyses------------------->>>>>>>>>>>>>", serializerAnalyse.data)
     
     return Response(serializerAnalyse.data)
 
@@ -130,15 +128,12 @@ def RegisterAdmin(request):
  
 @api_view(['POST'])
 def loginAdmin(request):
-    print('--------------------------------------------RECIVE DATA--------------------------------------------')
-    print("request",request.data)
     id_Admin =  (request.data.get('id_Admin'))
     password = request.data.get('password')  
     try:
         user = Admin.objects.filter(id_Admin=id_Admin).first()
      
         if not user.check_password(password):
-            print("password is wrong")
             return Response({'error': 'password  is wrong'}, status='400')
 
     except:
@@ -157,7 +152,6 @@ def loginAdmin(request):
     
     response = Response()
     # response.set_cookie('jwt', token, httponly=True, samesite='Strict')
-    print('--------------------------------///------------SEND DATA--------------------------------------------')
     response.data = {
         'message': 'Login successful',
         'jwt': token
@@ -169,22 +163,21 @@ def loginAdmin(request):
  
 @api_view(['GET'])
 def getAdmin(request):
-    print('--------------------------------------------RECIVE DATA--------------------------------------------')
     auth_header = request.headers.get('Authorization')  # Retrieve the 'Authorization' header
-    print("auth_header",auth_header)
     if not auth_header:
         raise AuthenticationFailed('Unauthenticated!')
     
     try:
         token = auth_header.split(' ')[1]  # Extract the token part from the header (Bearer token)
         payload = jwt.decode(token, 'secret', algorithms=['HS256'])
-        print("payload",payload)
     except jwt.ExpiredSignatureError:
         raise AuthenticationFailed('Unauthenticated!')
 
-    user = Admin.objects.filter(id_Admin=payload['id_Admin']).first()
+    try :
+        user = Admin.objects.filter(id_Admin=payload['id_Admin']).first()
+    except :
+        return Response({'error': 'id_Admin is wrong!'}, status='400')
     serializer = AdminSerializer(user)
-    print('serializer.data',serializer.data)
     return Response(serializer.data)
 
 
@@ -192,18 +185,15 @@ def getAdmin(request):
 @api_view(['POST'])
 def RegisterUser(request):
     auth_header = request.headers.get('Authorization')  # Retrieve the 'Authorization' header
-    print("auth_header",auth_header)
     if not auth_header:
         raise AuthenticationFailed('Unauthenticated!')
     
     try:
         token = auth_header.split(' ')[1]  # Extract the token part from the header (Bearer token)
         payload = jwt.decode(token, 'secret', algorithms=['HS256'])
-        print("payload",payload)
     except jwt.ExpiredSignatureError:
         raise AuthenticationFailed('Unauthenticated!')
     
-    print('id_admin',payload['id_Admin'])
     admin = get_object_or_404(Admin, id_Admin=payload['id_Admin'])  # Retrieve the admin object
     
     serializer = PatientSerializer(data=request.data)
@@ -211,7 +201,6 @@ def RegisterUser(request):
     serializer.is_valid(raise_exception=True)
 
     serializer.validated_data['id_admin'] = admin  # Assign the admin object to id_admin field
-    print('error',serializer.errors)
     serializer.save()
     
     return Response(serializer.data)
@@ -228,20 +217,20 @@ def getAnalysesForAdmin(request):
         payload = jwt.decode(token, 'secret', algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
         raise AuthenticationFailed('Unauthenticated!')
-
+    try :
+        user = Admin.objects.filter(id_Admin=payload['id_Admin']).first()
+    except :
+        return Response({'error': 'id_Admin is wrong!'}, status='400')
 
     analyses = Analyse.objects.all()
     serializerAnalyse = AnalyseSerializer(analyses, many=True)
-    print("analyses------------------->>>>>>>>>>>>>", serializerAnalyse.data)
     
     return Response(serializerAnalyse.data)
 
 
 @api_view(['GET'])
 def getPatients(request):
-    print('request', request)
     auth_header = request.headers.get('Authorization')  # Retrieve the 'Authorization' header
-    print("auth_header", auth_header)
     if not auth_header:
         raise AuthenticationFailed('Unauthenticated!')
 
@@ -252,18 +241,14 @@ def getPatients(request):
         raise AuthenticationFailed('Unauthenticated!')
 
     patients = Patient.objects.all()
-    print("patients------------------->>>>>>>>>>>>>", patients)
     patientSerializer = PatientSerializer(patients, many=True)
     serialized_data = patientSerializer.data  # Get the serialized data
-    print("patients------------------->>>>>>>>>>>>>", serialized_data)
 
     return Response(serialized_data)  # Return the serialized data as a JSON response
 
 @api_view(['GET'])
 def getAdmins(request):
-    print('request', request)
     auth_header = request.headers.get('Authorization')  # Retrieve the 'Authorization' header
-    print("auth_header", auth_header)
     if not auth_header:
         raise AuthenticationFailed('Unauthenticated!')
 
@@ -274,9 +259,61 @@ def getAdmins(request):
         raise AuthenticationFailed('Unauthenticated!')
 
     admin = Admin.objects.all()
-    print("patients------------------->>>>>>>>>>>>>", admin)
     adminSerializer = AdminSerializer(admin, many=True)
     serialized_data = adminSerializer.data  # Get the serialized data
-    print("patients------------------->>>>>>>>>>>>>", serialized_data)
 
     return Response(serialized_data)  # Return the serialized data as a JSON response
+
+@api_view(['POST'])
+def uploadFile(request):
+    if request.method == 'POST':
+
+        auth_header = request.headers.get('Authorization')  # Retrieve the 'Authorization' header
+        if not auth_header:
+            raise AuthenticationFailed('Unauthenticated!')
+
+        try:
+            token = auth_header.split(' ')[1]  # Extract the token part from the header (Bearer token)
+            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Unauthenticated!')
+
+
+       
+        
+      
+        # Get additional data from request.data
+        patient_id = request.data.get('patient_id')
+        print('patient_id',patient_id)
+        date = request.data.get('date')
+
+        # Get the uploaded file from request.FILES
+        uploaded_file = request.FILES.get('file')
+
+        if not uploaded_file:
+            print("error no file")
+            return Response({'error': 'No file uploaded.'}, status=400)
+
+ 
+        admin =  get_object_or_404(Admin, id_Admin=payload['id_Admin'])
+        admin_id = admin.id_Admin
+        patient = get_object_or_404(Patient, id_Patient= patient_id)
+
+        data = {
+            'date': date,
+            'fichier': uploaded_file,
+            'admin_id': admin_id,  # Ajoutez ceci pour associer correctement l'admin
+            'patient_id': patient_id,  # Ajoutez ceci pour associer correctement le patient
+        }
+
+        serializer = AnalyseSerializer(data=data)
+
+
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'success'}, status=200)
+        else:
+            return Response(serializer.errors, status=400)
+        
+    return Response({'error': 'Invalid request method.'}, status=405)

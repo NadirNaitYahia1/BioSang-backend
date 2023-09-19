@@ -14,5 +14,6 @@ urlpatterns = [
   path('getAnalysesForAdmin', views.getAnalysesForAdmin),
   path('getPatients', views.getPatients),
   path('getAdmins', views.getAdmins),
+  path('uploadFile', views.uploadFile),
 
 ]
