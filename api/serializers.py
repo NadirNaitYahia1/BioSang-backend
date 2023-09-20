@@ -35,6 +35,7 @@ class AdminSerializer(serializers.ModelSerializer):
 class AnalyseSerializer(serializers.ModelSerializer):
     patient_id = serializers.PrimaryKeyRelatedField(queryset=Patient.objects.all())
     admin_id = serializers.PrimaryKeyRelatedField(queryset=Admin.objects.all())
+    fichier = serializers.FileField(required=False)
 
     class Meta:
         model = Analyse

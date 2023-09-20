@@ -202,8 +202,43 @@ def RegisterUser(request):
 
     serializer.validated_data['id_admin'] = admin  # Assign the admin object to id_admin field
     serializer.save()
+
     
-    return Response(serializer.data)
+
+
+    # ajouter analyse :
+ 
+    
+
+    date = '2021-05-05'
+    file = 'file'
+
+# Get the uploaded file from request.FILES
+
+
+ 
+    admin =  get_object_or_404(Admin, id_Admin=payload['id_Admin'])
+    admin_id = admin.id_Admin
+    patient_id = serializer.data['id_Patient']  
+    data = {
+        'date': date,
+         
+        'admin_id': admin_id, 
+        'patient_id': patient_id,   
+    }
+
+    Analyse_serializer = AnalyseSerializer (data=data)
+    print("data",data)
+        
+    if Analyse_serializer.is_valid():
+        Analyse_serializer.save() 
+        return Response(serializer.data,status=200)
+    else:
+        return Response(Analyse_serializer.errors, status=400)
+        
+ 
+
+
 
 
 @api_view(['GET'])
@@ -302,8 +337,8 @@ def uploadFile(request):
         data = {
             'date': date,
             'fichier': uploaded_file,
-            'admin_id': admin_id,  # Ajoutez ceci pour associer correctement l'admin
-            'patient_id': patient_id,  # Ajoutez ceci pour associer correctement le patient
+            'admin_id': admin_id, 
+            'patient_id': patient_id,   
         }
 
         serializer = AnalyseSerializer(data=data)
