@@ -196,16 +196,28 @@ def RegisterUser(request):
     
     admin = get_object_or_404(Admin, id_Admin=payload['id_Admin'])  # Retrieve the admin object
     
-    serializer = PatientSerializer(data=request.data)
-  
-    serializer.is_valid(raise_exception=True)
-
-    serializer.validated_data['id_admin'] = admin  # Assign the admin object to id_admin field
-    serializer.save()
+    print('request.data',request.data)
+    name = request.data.get('name')
+    prenom = request.data.get('prenom')
+    date = request.data.get('date_naissance')
+    try :
+        user = Patient.objects.filter(name=name,prenom=prenom,date_naissance=date).first()
+        if user:
+            patient_id = user.id_Patient
+            print('(((((((((((((((((USER EXIST)))))))))))))))))))))')
+        else :
+            serializer = PatientSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.validated_data['id_admin'] = admin  # Assign the admin object to id_admin field
+            serializer.save()
+            patient_id = serializer.data['id_Patient']  
 
     
 
-
+    except :
+        print('heeeeeelooooo wooorld')
+        pass
+  
     # ajouter analyse :
  
     
@@ -219,7 +231,6 @@ def RegisterUser(request):
  
     admin =  get_object_or_404(Admin, id_Admin=payload['id_Admin'])
     admin_id = admin.id_Admin
-    patient_id = serializer.data['id_Patient']  
     data = {
         'date': date,
          
@@ -227,12 +238,13 @@ def RegisterUser(request):
         'patient_id': patient_id,   
     }
 
+
     Analyse_serializer = AnalyseSerializer (data=data)
     print("data",data)
         
     if Analyse_serializer.is_valid():
         Analyse_serializer.save() 
-        return Response(serializer.data,status=200)
+        return Response(Analyse_serializer.data,status=200)
     else:
         return Response(Analyse_serializer.errors, status=400)
         
